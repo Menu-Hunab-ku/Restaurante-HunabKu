@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Panel de Control - Hunab Ku</title>
+    
+    <!-- ESTILOS EXTERNOS -->
+    <link rel="stylesheet" href="css/panel.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
+    
+    <!-- METADATOS -->
+    <meta name="description" content="Panel de control profesional para gestión de restaurante">
+    <meta name="keywords" content="panel, dashboard, restaurante, gestión, pedidos">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <span>Hunab Ku</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h3 class="section-title">Principal</h3>
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="#dashboard" class="nav-link active">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#orders" class="nav-link">
+                                <i class="fas fa-receipt"></i>
+                                <span>Pedidos Activos</span>
+                                <span class="nav-badge" id="ordersBadge">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#tables" class="nav-link">
+                                <i class="fas fa-chair"></i>
+                                <span>Mesas</span>
+                                <span class="nav-badge" id="tablesBadge">0/20</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#menu" class="nav-link">
+                                <i class="fas fa-book-open"></i>
+                                <span>Menú</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="section-title">Gestión</h3>
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="#inventory" class="nav-link">
+                                <i class="fas fa-boxes"></i>
+                                <span>Inventario</span>
+                                <span class="nav-badge" id="inventoryBadge">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#reservations" class="nav-link">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Reservas</span>
+                                <span class="nav-badge" id="reservationsBadge">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#employees" class="nav-link">
+                                <i class="fas fa-users"></i>
+                                <span>Personal</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#reports" class="nav-link">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>Reportes</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="section-title">Configuración</h3>
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="#settings" class="nav-link">
+                                <i class="fas fa-cog"></i>
+                                <span>Ajustes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#qr" class="nav-link">
+                                <i class="fas fa-qrcode"></i>
+                                <span>Códigos QR</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#notifications" class="nav-link">
+                                <i class="fas fa-bell"></i>
+                                <span>Notificaciones</span>
+                                <span class="nav-badge" id="notificationsBadge">0</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-details">
+                        <h4>Administrador</h4>
+                        <span>admin@deluxe.com</span>
+                    </div>
+                    <a href="#logout" style="margin-left: auto; color: var(--gray-400);" title="Cerrar sesión">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-content">
+            <!-- HEADER SUPERIOR -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle" title="Menú">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">Dashboard</h1>
+                </div>
+
+                <div class="header-right">
+                    <div class="header-actions">
+                        <button class="action-btn" title="Actualizar" id="refreshBtn">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="action-btn" title="Notificaciones" id="notificationsBtn">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge"></span>
+                        </button>
+                        <button class="action-btn" title="Ayuda" id="helpBtn">
+                            <i class="fas fa-question-circle"></i>
+                        </button>
+                    </div>
+
+                    <div class="user-menu" id="userMenu" title="Menú de usuario">
+                        <div class="user-menu-avatar">AD</div>
+                        <div class="user-menu-info">
+                            <span style="font-weight: 500;">Administrador</span>
+                            <i class="fas fa-chevron-down" style="font-size: 0.875rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CONTENIDO -->
+            <div class="content-wrapper">
+                <!-- SECCIÓN DASHBOARD -->
+                <div id="section-dashboard" class="panel-section active">
+                    <!-- ESTADÍSTICAS RÁPIDAS -->
+                    <div class="stats-grid" id="statsGrid">
+                        <!-- Se generará dinámicamente -->
+                    </div>
+
+                    <!-- GRÁFICOS -->
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Ventas Diarias</h3>
+                                <div class="chart-actions">
+                                    <button class="chart-btn active" data-period="today">Hoy</button>
+                                    <button class="chart-btn" data-period="week">Semana</button>
+                                    <button class="chart-btn" data-period="month">Mes</button>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Top Productos</h3>
+                                <div class="chart-actions">
+                                    <button class="chart-btn active" data-type="quantity">Cantidad</button>
+                                    <button class="chart-btn" data-type="revenue">Ingresos</button>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="productsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PEDIDOS ACTIVOS (Vista rápida) -->
+                    <section class="orders-section">
+                        <div class="section-header">
+                            <h2>Pedidos Activos</h2>
+                            <button class="btn-secondary" onclick="navigateToSection('orders')">
+                                Ver Todos <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="orders-table" id="dashboardOrdersTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID Pedido</th>
+                                        <th>Mesa</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboardOrdersTableBody">
+                                    <!-- Se generará dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SECCIÓN PEDIDOS -->
+                <div id="section-orders" class="panel-section">
+                    <section class="orders-section">
+                        <div class="section-header">
+                            <h2>Pedidos</h2>
+                            <div class="section-actions">
+                                <button class="btn-primary" id="newOrderBtn">
+                                    <i class="fas fa-plus"></i> Nuevo Pedido
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- PESTAÑAS DE ESTADOS -->
+                        <div class="orders-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--panel-border); padding-bottom: 0;">
+                            <button class="order-tab active" data-status="pending" onclick="showOrderStatusTab('pending')">
+                                <i class="fas fa-clipboard-check"></i>
+                                <span>Recibido</span>
+                                <span class="tab-badge" id="badge-pending">0</span>
+                            </button>
+                            <button class="order-tab" data-status="preparing" onclick="showOrderStatusTab('preparing')">
+                                <i class="fas fa-utensils"></i>
+                                <span>Preparando</span>
+                                <span class="tab-badge" id="badge-preparing">0</span>
+                            </button>
+                            <button class="order-tab" data-status="cooking" onclick="showOrderStatusTab('cooking')">
+                                <i class="fas fa-fire"></i>
+                                <span>Cocinando</span>
+                                <span class="tab-badge" id="badge-cooking">0</span>
+                            </button>
+                            <button class="order-tab" data-status="ready" onclick="showOrderStatusTab('ready')">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Listo</span>
+                                <span class="tab-badge" id="badge-ready">0</span>
+                            </button>
+                            <button class="order-tab" data-status="delivered" onclick="showOrderStatusTab('delivered')">
+                                <i class="fas fa-truck"></i>
+                                <span>Entregado</span>
+                                <span class="tab-badge" id="badge-delivered">0</span>
+                            </button>
+                        </div>
+
+                        <!-- CONTENEDOR DE PEDIDOS POR ESTADO -->
+                        <div id="ordersContainer">
+                            <!-- Sección Recibido -->
+                            <div id="orders-pending" class="orders-status-section active">
+                                <div class="table-responsive">
+                                    <table class="orders-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Pedido</th>
+                                                <th>Mesa</th>
+                                                <th>Productos</th>
+                                                <th>Total</th>
+                                                <th>Tiempo</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="ordersBody-pending">
+                                            <!-- Se generará dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Sección Preparando -->
+                            <div id="orders-preparing" class="orders-status-section">
+                                <div class="table-responsive">
+                                    <table class="orders-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Pedido</th>
+                                                <th>Mesa</th>
+                                                <th>Productos</th>
+                                                <th>Total</th>
+                                                <th>Tiempo</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="ordersBody-preparing">
+                                            <!-- Se generará dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Sección Cocinando -->
+                            <div id="orders-cooking" class="orders-status-section">
+                                <div class="table-responsive">
+                                    <table class="orders-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Pedido</th>
+                                                <th>Mesa</th>
+                                                <th>Productos</th>
+                                                <th>Total</th>
+                                                <th>Tiempo</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="ordersBody-cooking">
+                                            <!-- Se generará dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Sección Listo -->
+                            <div id="orders-ready" class="orders-status-section">
+                                <div class="table-responsive">
+                                    <table class="orders-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Pedido</th>
+                                                <th>Mesa</th>
+                                                <th>Productos</th>
+                                                <th>Total</th>
+                                                <th>Tiempo</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="ordersBody-ready">
+                                            <!-- Se generará dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Sección Entregado -->
+                            <div id="orders-delivered" class="orders-status-section">
+                                <div class="table-responsive">
+                                    <table class="orders-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Pedido</th>
+                                                <th>Mesa</th>
+                                                <th>Productos</th>
+                                                <th>Total</th>
+                                                <th>Tiempo</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="ordersBody-delivered">
+                                            <!-- Se generará dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SECCIÓN MESAS -->
+                <div id="section-tables" class="panel-section">
+                    <section class="orders-section">
+                        <div class="section-header">
+                            <h2>Estado de Mesas</h2>
+                            <div class="section-actions">
+                                <button class="btn-primary" id="refreshTablesBtn">
+                                    <i class="fas fa-sync-alt"></i> Actualizar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="tables-grid" id="tablesGrid">
+                            <!-- Se generará dinámicamente -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SECCIÓN MENÚ -->
+                <div id="section-menu" class="panel-section">
+                    <section class="orders-section">
+                        <div class="section-header">
+                            <h2>Gestión de Menú</h2>
+                            <button class="btn-primary" id="addProductBtn">
+                                <i class="fas fa-plus"></i> Agregar Producto
+                            </button>
+                        </div>
+                        <div id="menuProductsList">
+                            <!-- Se generará dinámicamente -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SECCIÓN INVENTARIO -->
+                <div id="section-inventory" class="panel-section">
+                    <section class="orders-section">
+                        <div class="section-header">
+                            <h2>Inventario</h2>
+                            <button class="btn-primary" id="addInventoryItemBtn">
+                                <i class="fas fa-plus"></i> Agregar Producto
+                            </button>
+                        </div>
+                        <div id="inventoryList">
+                            <!-- Se generará dinámicamente -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SECCIÓN PERSONAL -->
+                <div id="section-employees" class="panel-section">
+                    <section class="orders-section">
+                        <div class="section-header">
+                            <h2>Personal</h2>
+                            <button class="btn-primary" id="addEmployeeBtn">
+                                <i class="fas fa-plus"></i> Agregar Empleado
+                            </button>
+                        </div>
+                        <div id="employeesList">
+                            <!-- Se generará dinámicamente -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SECCIÓN RESERVAS -->
+                <div id="section-reservations" class="panel-section">
+                    <section class="orders-section">
+                        <div class="section-header">
+                            <h2>Reservas</h2>
+                            <button class="btn-primary" id="addReservationBtn">
+                                <i class="fas fa-plus"></i> Nueva Reserva
+                            </button>
+                        </div>
+                        <div id="reservationsList">
+                            <!-- Se generará dinámicamente -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SECCIÓN REPORTES -->
+                <div id="section-reports" class="panel-section">
+                    <section class="orders-section">
+                        <div class="section-header">
+                            <h2>Reportes de Ventas</h2>
+                            <div class="section-actions">
+                                <button class="filter-btn active" data-period="day">Hoy</button>
+                                <button class="filter-btn" data-period="week">Semana</button>
+                                <button class="filter-btn" data-period="month">Mes</button>
+                            </div>
+                        </div>
+                        <div id="reportsContent">
+                            <!-- Se generará dinámicamente -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SECCIÓN AJUSTES -->
+                <div id="section-settings" class="panel-section">
+                    <section class="orders-section">
+                        <div class="section-header">
+                            <h2>Ajustes del Sistema</h2>
+                        </div>
+                        <div id="settingsContent">
+                            <p>Configuración del sistema</p>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SECCIÓN QR -->
+                <div id="section-qr" class="panel-section">
+                    <section class="orders-section">
+                        <div class="section-header">
+                            <h2>Códigos QR de Mesas</h2>
+                        </div>
+                        <div id="qrContent">
+                            <!-- Se generará dinámicamente -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SECCIÓN NOTIFICACIONES -->
+                <div id="section-notifications" class="panel-section">
+                    <section class="orders-section">
+                        <div class="section-header">
+                            <h2>Notificaciones</h2>
+                        </div>
+                        <div id="notificationsContent">
+                            <!-- Se generará dinámicamente -->
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL DETALLE PEDIDO -->
+    <div class="modal-overlay" id="orderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Detalle del Pedido</h3>
+                <button class="modal-close" id="modalClose" title="Cerrar">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="modalCancel">Cancelar</button>
+                <button class="btn-primary" id="modalAction">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO PEDIDO -->
+    <div class="modal-overlay" id="newOrderModal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Nuevo Pedido Manual</h3>
+                <button class="modal-close" id="newOrderModalClose" title="Cerrar">&times;</button>
+            </div>
+            <div class="modal-body" id="newOrderModalBody">
+                <div style="display: grid; gap: 1rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Mesa</label>
+                        <select id="selectTable" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                            <option value="">Seleccionar mesa...</option>
+                            <!-- Se llenará dinámicamente -->
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Productos</label>
+                        <div style="border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; max-height: 200px; overflow-y: auto;" id="newOrderProducts">
+                            <!-- Lista de productos -->
+                        </div>
+                    </div>
+                    <div id="newOrderSummary" style="display: none;">
+                        <h4 style="margin-bottom: 1rem;">Resumen</h4>
+                        <div id="newOrderItems"></div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
+                            <strong>Total:</strong>
+                            <strong id="newOrderTotal">$0.00</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelNewOrder">Cancelar</button>
+                <button class="btn-primary" id="createNewOrder">Crear Pedido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- En panel.html, ANTES de tus scripts, agregar: -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase config.js"></script>
+    <!-- SCRIPT CHART.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
+    <!-- JAVASCRIPT EXTERNO -->
+    <script src="js/panel.js"></script>
+</body>
+</html>
